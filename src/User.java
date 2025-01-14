@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class User {
+public class User implements Serializable {
     String username;
     String password;
     Wallet wallet;
@@ -12,21 +12,29 @@ public class User {
         this.username = username;
         this.password = password;
         this.wallet = new Wallet();
+
     }
 
-    public static void loadUsers() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("users.dat"))) {
-            users = (Map<String, User>) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("No previous data found.");
+    // Метод для сохранения профиля пользователя
+    public static void saveUserProfiles(String filename) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
+            oos.writeObject(users);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public static void saveUsers() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("users.dat"))) {
-            oos.writeObject(users);
-        } catch (IOException e) {
-            System.out.println("Error while saving data.");
+    // Метод для загрузки профилей пользователей
+    public static void loadUserProfiles(String filename) {
+        File file = new File(filename);
+        if (!file.exists()) {
+            System.out.println("Файл не найден: " + filename);
+            return; // Или можно создать файл по умолчанию
+        }
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
+            users = (Map<String, User>) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
