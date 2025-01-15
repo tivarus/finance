@@ -15,7 +15,6 @@ public class User implements Serializable {
 
     }
 
-    // Метод для сохранения профиля пользователя
     public static void saveUserProfiles(String filename) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(users);
@@ -24,12 +23,11 @@ public class User implements Serializable {
         }
     }
 
-    // Метод для загрузки профилей пользователей
     public static void loadUserProfiles(String filename) {
         File file = new File(filename);
         if (!file.exists()) {
-            System.out.println("Файл не найден: " + filename);
-            return; // Или можно создать файл по умолчанию
+            System.out.println("Ошибка: Файл не найден: " + filename);
+            return;
         }
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
             users = (Map<String, User>) ois.readObject();

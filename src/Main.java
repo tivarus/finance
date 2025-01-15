@@ -5,12 +5,13 @@ public class Main {
     static User currentUser = null;
 
     public static void main(String[] args) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        Scanner scanner = new Scanner(System.in);
         String command;
         User.loadUserProfiles("user_profiles.dat");
+        Scanner reader = new Scanner(System.in);
         while (true) {
             System.out.println("Введите команду (reg/log/exit): ");
-            command = reader.readLine();
+            command = scanner.nextLine();
 
             switch (command.toLowerCase()) {
                 case "reg":
@@ -23,115 +24,104 @@ public class Main {
                     User.saveUserProfiles("user_profiles.dat");
                     System.exit(0);
                 default:
-                    System.out.println("Неизвестная команда.");
+                    System.out.println("Ошибка: Неизвестная команда.");
             }
-
             if (currentUser != null) {
                 manageFinance(reader);
             }
         }
     }
 
-    static void registerUser(BufferedReader reader) throws IOException {
+    static void registerUser(Scanner reader) throws IOException {
         System.out.println("Введите логин: ");
-        String username = reader.readLine();
+        String username = reader.nextLine();
         System.out.println("Введите пароль: ");
-        String password = reader.readLine();
-        User user = User.users.get(username);
-        if(!User.users.containsKey(username)) {
+        String password = reader.nextLine();
+        if (!User.users.containsKey(username)) {
             User.users.put(username, new User(username, password));
             System.out.println("Регистрация успешно завершена.");
         } else {
-            System.out.println("Такой пользователь уже есть");
+            System.out.println("Ошибка: Такой пользователь уже есть");
         }
     }
 
-    static void loginUser(BufferedReader reader) throws IOException {
+    static void loginUser(Scanner reader) throws IOException {
         System.out.println("Введите логин: ");
-        String username = reader.readLine();
+        String username = reader.nextLine();
         System.out.println("Введите пароль: ");
-        String password = reader.readLine();
+        String password = reader.nextLine();
         User user = User.users.get(username);
         if (user != null && user.password.equals(password)) {
             currentUser = user;
             System.out.println("Вход выполнен.");
         } else {
-            System.out.println("Неверные данные.");
+            System.out.println("Ошибка: Неверные данные.");
         }
     }
 
-    static void manageFinance(BufferedReader reader) throws IOException {
+    static void manageFinance(Scanner reader) throws IOException {
         String command;
         while (true) {
-            System.out.println("Введите команду (addIncome/addExpense/setBudget/show/budgetsum/exit): ");
+            System.out.println("Введите команду (addIncome/addExpense/setBudget/showAll/showBudgets/exit): ");
             Scanner scanner = new Scanner(System.in);
             command = scanner.nextLine();
-            //command = reader.readLine();
 
             switch (command.toLowerCase()) {
                 case "addincome":
-                    double incomeAmount = 0;
+                    double incomeValue = 0;
                     System.out.println("Введите категорию: ");
-                    //String incomeSource = reader.readLine();
-                    String incomeSource = scanner.nextLine();
+                    String incomeCategory = scanner.nextLine();
                     System.out.println("Введите сумму: ");
                     if (scanner.hasNextDouble()) {
-                        incomeAmount = scanner.nextDouble();
+                        incomeValue = scanner.nextDouble();
                     } else {
-                        System.out.println("Ошибка ввода. Пожалуйста, введите число.");
+                        System.out.println("Ошибка: Введите положительное число.");
                     }
-                    //double incomeAmount = Double.parseDouble(reader.readLine());
-                    currentUser.wallet.addIncome(incomeSource, incomeAmount);
+                    currentUser.wallet.addIncome(incomeCategory, incomeValue);
                     break;
                 case "addexpense":
-                    double expenseAmount = 0;
+                    double expenseValue = 0;
                     System.out.println("Введите категорию: ");
                     String expenseCategory = scanner.nextLine();
-                    //String expenseCategory = reader.readLine();
                     System.out.println("Введите сумму: ");
-                    //Scanner scanner = new Scanner(System.in);
                     if (scanner.hasNextDouble()) {
-                        expenseAmount = scanner.nextDouble();
+                        expenseValue = scanner.nextDouble();
                     } else {
-                        System.out.println("Ошибка ввода. Пожалуйста, введите число.");
+                        System.out.println("Ошибка: Введите положительное число.");
                     }
-                    //scanner.close();
-
-
-                    //double expenseAmount = Double.parseDouble(reader.readLine());
-                    currentUser.wallet.addExpense(expenseCategory, expenseAmount);
+                    currentUser.wallet.addExpense(expenseCategory, expenseValue);
                     break;
                 case "setbudget":
-                    double budgetAmount = 0;
+                    double budgetValue = 0;
                     System.out.println("Введите категорию: ");
-                    String budgetCategory = reader.readLine();
+                    String budgetCategory = reader.nextLine();
                     System.out.println("Введите лимит бюджета: ");
                     if (scanner.hasNextDouble()) {
-                        budgetAmount = scanner.nextDouble();
+                        budgetValue = scanner.nextDouble();
                     } else {
-                        System.out.println("Ошибка ввода. Пожалуйста, введите число.");
+                        System.out.println("Ошибка: Введите положительное число.");
                     }
-                    //double budgetAmount = Double.parseDouble(reader.readLine());
-                    currentUser.wallet.setBudget(budgetCategory, budgetAmount);
+                    currentUser.wallet.setBudget(budgetCategory, budgetValue);
                     break;
-                case "show":
+                case "showall":
                     currentUser.wallet.displaySummary();
                     break;
-                case "budgetsum":
+                case "showbudgets":
                     System.out.println("Введите категории через запятую(a, b, c...): ");
-                    String budgetCategories = reader.readLine();
+                    String budgetCategories = reader.nextLine();
                     String[] categories = budgetCategories.split(",");
 
                     for (int i = 0; i < categories.length; i++) {
                         categories[i] = categories[i].trim();
                     }
-                    currentUser.wallet.calculateTotalsForCategories(categories);
+
+                    currentUser.wallet.calcSelectedBudgets(categories);
                     break;
                 case "exit":
                     currentUser = null;
                     return;
                 default:
-                    System.out.println("Неверные данные.");
+                    System.out.println("Ошибка: Неверные данные.");
             }
         }
     }
